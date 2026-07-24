@@ -12,6 +12,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsc --project tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "devDependencies": {
