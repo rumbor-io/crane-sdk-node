@@ -86,17 +86,22 @@ test('getContext shapes GET request', async () => {
 	assert.equal(request.init.method, undefined);
 });
 
-test('non-success response throws typed error', async () => {
-	const client = new RumborMemory({
-		baseUrl: 'https://memory.example',
-		fetch: async () => jsonResponse({ error: 'unauthorized' }, 403),
-	});
+for (const [status, code] of [
+	[401, 'unauthorized'],
+	[403, 'forbidden'],
+]) {
+	test(`${status} response throws typed error`, async () => {
+		const client = new RumborMemory({
+			baseUrl: 'https://memory.example',
+			fetch: async () => jsonResponse({ error: code }, status),
+		});
 
-	await assert.rejects(
-		client.getContext('context-id'),
-		(error) =>
-			error instanceof RumborMemoryError &&
-			error.status === 403 &&
-			assert.deepEqual(error.body, { error: 'unauthorized' }) === undefined,
-	);
-});
+		await assert.rejects(
+			client.getContext('context-id'),
+			(error) =>
+				error instanceof RumborMemoryError &&
+				error.status === status &&
+				assert.deepEqual(error.body, { error: code }) === undefined,
+		);
+	});
+}
