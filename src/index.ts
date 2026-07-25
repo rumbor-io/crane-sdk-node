@@ -1,3 +1,7 @@
+import createClient, { type Client } from 'openapi-fetch';
+
+import type { components, paths } from './generated/schema.js';
+
 export interface RumborMemoryOptions {
 	baseUrl: string;
 	apiKey?: string;
@@ -18,28 +22,11 @@ export interface TurnInput {
 	assertion?: AssertionInput;
 }
 
-export interface AssertionInput {
-	content: string;
-	category: 'Episodic' | 'Identity' | 'Knowledge' | 'Context' | 'Instructions' | 'Uncertainty';
-	confidence: number;
-}
-
-export interface TurnResponse {
-	turnId: string;
-}
-
-export interface MemoryRecord {
-	id: string;
-	content: string;
-	category: string;
-	confidence: number;
-	trust: number;
-}
-
-export interface RecallResponse {
-	results: MemoryRecord[];
-	traceId: string;
-}
+export type AssertionInput = components['schemas']['AssertionInput'];
+export type TurnResponse = components['schemas']['TurnResponse'];
+export type MemoryRecord = components['schemas']['MemoryRecord'];
+export type RecallResponse = components['schemas']['RecallResponse'];
+export type StatusResponse = components['schemas']['StatusResponse'];
 
 export class RumborMemoryError extends Error {
 	constructor(
@@ -50,65 +37,57 @@ export class RumborMemoryError extends Error {
 		this.name = 'RumborMemoryError';
 	}
 }
-
 export class RumborMemory {
-	private readonly fetchImpl: typeof globalThis.fetch;
-	private readonly apiKey?: string;
-	private readonly baseUrl: string;
+	private readonly client: Client<paths>;
 
 	constructor(options: RumborMemoryOptions) {
-		this.baseUrl = options.baseUrl.replace(/\/$/, '');
-		this.apiKey = options.apiKey;
-		this.fetchImpl = options.fetch ?? globalThis.fetch;
+		this.client = createClient<paths>({
+			baseUrl: options.baseUrl.replace(/\/$/, ''),
+			fetch: options.fetch ?? globalThis.fetch,
+			headers: options.apiKey ? { authorization: `Bearer ${options.apiKey}` } : undefined,
+		});
+	}
+
+	async getHealth(): Promise<StatusResponse> {
+		const { data, error, response } = await this.client.GET('/health');
+		return this.unwrap(data, error, response);
+	}
+
+	async getReadiness(): Promise<StatusResponse> {
+		const { data, error, response } = await this.client.GET('/ready');
+		return this.unwrap(data, error, response);
 	}
 
 	async submitTurn(input: TurnInput): Promise<TurnResponse> {
-		const response = await this.fetchImpl(
-			`${this.baseUrl}/api/v1/${encodeURIComponent(input.context)}/turns`,
-			{
-				method: 'POST',
-				headers: this.headers(),
-				body: JSON.stringify({
-					sessionId: input.sessionId,
-					sourceId: input.sourceId,
-					content: input.content,
-					assertion: input.assertion,
-				}),
+		const { data, error, response } = await this.client.POST('/api/v1/{context}/turns', {
+			params: { path: { context: input.context } },
+			body: {
+				sessionId: input.sessionId,
+				sourceId: input.sourceId,
+				content: input.content,
+				assertion: input.assertion,
 			},
-		);
-		return this.parseResponse(response);
+		});
+		return this.unwrap(data, error, response);
 	}
 
 	async recall(input: RecallInput): Promise<RecallResponse> {
-		const response = await this.fetchImpl(
-			`${this.baseUrl}/api/v1/${encodeURIComponent(input.context)}/query`,
-			{
-				method: 'POST',
-				headers: this.headers(),
-				body: JSON.stringify({ query: input.query, limit: input.limit }),
-			},
-		);
-		return this.parseResponse(response);
+		const { data, error, response } = await this.client.POST('/api/v1/{context}/query', {
+			params: { path: { context: input.context } },
+			body: { query: input.query, limit: input.limit },
+		});
+		return this.unwrap(data, error, response);
 	}
 
 	async getContext(context: string): Promise<RecallResponse> {
-		const response = await this.fetchImpl(
-			`${this.baseUrl}/api/v1/${encodeURIComponent(context)}/context`,
-			{ headers: this.headers() },
-		);
-		return this.parseResponse(response);
+		const { data, error, response } = await this.client.GET('/api/v1/{context}/context', {
+			params: { path: { context } },
+		});
+		return this.unwrap(data, error, response);
 	}
 
-	private headers(): Record<string, string> {
-		return {
-			'content-type': 'application/json',
-			...(this.apiKey ? { authorization: `Bearer ${this.apiKey}` } : {}),
-		};
-	}
-
-	private async parseResponse<T>(response: Response): Promise<T> {
-		const body = await response.json().catch(() => undefined);
-		if (!response.ok) throw new RumborMemoryError(response.status, body);
-		return body as T;
+	private unwrap<T>(data: T | undefined, error: unknown, response: Response): T {
+		if (!response.ok) throw new RumborMemoryError(response.status, error);
+		return data as T;
 	}
 }
