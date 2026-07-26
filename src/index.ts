@@ -12,6 +12,8 @@ export interface RecallInput {
 	context: string;
 	query: string;
 	limit?: number;
+	validAt?: string;
+	knownAt?: string;
 }
 
 export interface TurnInput {
@@ -20,6 +22,12 @@ export interface TurnInput {
 	sourceId: string;
 	content: string;
 	assertion?: AssertionInput;
+}
+
+export interface ContextInput {
+	context: string;
+	validAt?: string;
+	knownAt?: string;
 }
 
 export type AssertionInput = components['schemas']['AssertionInput'];
@@ -74,14 +82,22 @@ export class RumborMemory {
 	async recall(input: RecallInput): Promise<RecallResponse> {
 		const { data, error, response } = await this.client.POST('/api/v1/{context}/query', {
 			params: { path: { context: input.context } },
-			body: { query: input.query, limit: input.limit },
+			body: {
+				query: input.query,
+				limit: input.limit,
+				validAt: input.validAt,
+				knownAt: input.knownAt,
+			},
 		});
 		return this.unwrap(data, error, response);
 	}
 
-	async getContext(context: string): Promise<RecallResponse> {
+	async getContext(input: ContextInput): Promise<RecallResponse> {
 		const { data, error, response } = await this.client.GET('/api/v1/{context}/context', {
-			params: { path: { context } },
+			params: {
+				path: { context: input.context },
+				query: { validAt: input.validAt, knownAt: input.knownAt },
+			},
 		});
 		return this.unwrap(data, error, response);
 	}

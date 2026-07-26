@@ -78,10 +78,83 @@ test('getContext shapes GET request', async () => {
 		},
 	});
 
-	await client.getContext('context/id');
+	await client.getContext({ context: 'context/id' });
 
 	assert.equal(request.url, 'https://memory.example/api/v1/context%2Fid/context');
 	assert.equal(request.method, 'GET');
+});
+
+test('recall shapes validAt and knownAt into the request body', async () => {
+	let request;
+	const client = new RumborMemory({
+		baseUrl: 'https://memory.example/',
+		fetch: async (req) => {
+			request = req;
+			return jsonResponse({ results: [], traceId: 'trace-id' });
+		},
+	});
+
+	await client.recall({
+		context: 'context-id',
+		query: 'coffee',
+		validAt: '2026-01-01T00:00:00Z',
+		knownAt: '2026-01-02T00:00:00Z',
+	});
+
+	assert.deepEqual(await request.clone().json(), {
+		query: 'coffee',
+		validAt: '2026-01-01T00:00:00Z',
+		knownAt: '2026-01-02T00:00:00Z',
+	});
+});
+
+test('getContext shapes validAt and knownAt into the query string', async () => {
+	let request;
+	const client = new RumborMemory({
+		baseUrl: 'https://memory.example/',
+		fetch: async (req) => {
+			request = req;
+			return jsonResponse({ results: [], traceId: 'trace-id' });
+		},
+	});
+
+	await client.getContext({
+		context: 'context-id',
+		validAt: '2026-01-01T00:00:00Z',
+		knownAt: '2026-01-02T00:00:00Z',
+	});
+
+	const url = new URL(request.url);
+	assert.equal(url.pathname, '/api/v1/context-id/context');
+	assert.equal(url.searchParams.get('validAt'), '2026-01-01T00:00:00Z');
+	assert.equal(url.searchParams.get('knownAt'), '2026-01-02T00:00:00Z');
+});
+
+test('submitTurn shapes supersedes into the assertion body', async () => {
+	let request;
+	const client = new RumborMemory({
+		baseUrl: 'https://memory.example/',
+		fetch: async (req) => {
+			request = req;
+			return jsonResponse({ turnId: 'turn-id' }, 201);
+		},
+	});
+
+	await client.submitTurn({
+		context: 'context-id',
+		sessionId: 'session-id',
+		sourceId: 'source-id',
+		content: 'hello',
+		assertion: {
+			content: 'likes coffee',
+			category: 'Knowledge',
+			confidence: 0.9,
+			supersedes: '00000000-0000-0000-0000-0000000000aa',
+		},
+	});
+
+	const body = await request.clone().json();
+	assert.equal(body.assertion.supersedes, '00000000-0000-0000-0000-0000000000aa');
 });
 
 test('getHealth shapes GET request', async () => {
@@ -124,7 +197,7 @@ for (const [status, code] of [
 		});
 
 		await assert.rejects(
-			client.getContext('context-id'),
+			client.getContext({ context: 'context-id' }),
 			(error) =>
 				error instanceof RumborMemoryError &&
 				error.status === status &&

@@ -104,6 +104,8 @@ export interface components {
             /** @enum {string} */
             category: "Episodic" | "Identity" | "Knowledge" | "Context" | "Instructions" | "Uncertainty";
             confidence: number;
+            /** Format: uuid */
+            supersedes?: string;
         };
         TurnResponse: {
             /** Format: uuid */
@@ -112,6 +114,10 @@ export interface components {
         RecallRequest: {
             query: string;
             limit?: number;
+            /** Format: date-time */
+            validAt?: string;
+            /** Format: date-time */
+            knownAt?: string;
         };
         RecallResponse: {
             results: components["schemas"]["MemoryRecord"][];
@@ -161,6 +167,8 @@ export interface components {
     };
     parameters: {
         Context: string;
+        ValidAt: string;
+        KnownAt: string;
     };
     requestBodies: never;
     headers: never;
@@ -277,7 +285,10 @@ export interface operations {
     };
     getContext: {
         parameters: {
-            query?: never;
+            query?: {
+                validAt?: components["parameters"]["ValidAt"];
+                knownAt?: components["parameters"]["KnownAt"];
+            };
             header?: never;
             path: {
                 context: components["parameters"]["Context"];
