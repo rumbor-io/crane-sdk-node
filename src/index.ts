@@ -30,10 +30,17 @@ export interface ContextInput {
 	knownAt?: string;
 }
 
+export interface GrantMembershipInput {
+	context: string;
+	principalId: string;
+}
+
 export type AssertionInput = components['schemas']['AssertionInput'];
 export type TurnResponse = components['schemas']['TurnResponse'];
 export type MemoryRecord = components['schemas']['MemoryRecord'];
 export type RecallResponse = components['schemas']['RecallResponse'];
+export type MembershipGrantRequest = components['schemas']['MembershipGrantRequest'];
+export type MembershipGrantResponse = components['schemas']['MembershipGrantResponse'];
 export type StatusResponse = components['schemas']['StatusResponse'];
 
 export class RumborMemoryError extends Error {
@@ -98,6 +105,14 @@ export class RumborMemory {
 				path: { context: input.context },
 				query: { validAt: input.validAt, knownAt: input.knownAt },
 			},
+		});
+		return this.unwrap(data, error, response);
+	}
+
+	async grantMembership(input: GrantMembershipInput): Promise<MembershipGrantResponse> {
+		const { data, error, response } = await this.client.POST('/api/v1/{context}/members', {
+			params: { path: { context: input.context } },
+			body: { principalId: input.principalId },
 		});
 		return this.unwrap(data, error, response);
 	}
