@@ -2,6 +2,15 @@
   "name": "@rumbor/memory-sdk",
   "version": "0.1.0",
   "description": "Provider-neutral Node.js SDK for Rumbor Memory.",
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rumbor-io/rumbor-memory.git",
+    "directory": "packages/sdk-node"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "exports": {
     ".": {
