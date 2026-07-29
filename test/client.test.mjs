@@ -157,6 +157,53 @@ test('submitTurn shapes supersedes into the assertion body', async () => {
 	assert.equal(body.assertion.supersedes, '00000000-0000-0000-0000-0000000000aa');
 });
 
+test('grantMembership shapes URL, auth, and body', async () => {
+	let request;
+	const client = new RumborMemory({
+		baseUrl: 'https://memory.example/',
+		apiKey: 'principal-id',
+		fetch: async (req) => {
+			request = req;
+			return jsonResponse({
+				principalId: '00000000-0000-0000-0000-0000000000bb',
+				contextId: 'context-id',
+			});
+		},
+	});
+
+	const result = await client.grantMembership({
+		context: 'context-id',
+		principalId: '00000000-0000-0000-0000-0000000000bb',
+	});
+
+	assert.deepEqual(result, {
+		principalId: '00000000-0000-0000-0000-0000000000bb',
+		contextId: 'context-id',
+	});
+	assert.equal(request.url, 'https://memory.example/api/v1/context-id/members');
+	assert.equal(request.method, 'POST');
+	assert.equal(request.headers.get('content-type'), 'application/json');
+	assert.equal(request.headers.get('authorization'), 'Bearer principal-id');
+	assert.deepEqual(await request.clone().json(), {
+		principalId: '00000000-0000-0000-0000-0000000000bb',
+	});
+});
+
+test('grantMembership surfaces 400 as a typed error', async () => {
+	const client = new RumborMemory({
+		baseUrl: 'https://memory.example',
+		fetch: async () => jsonResponse({ error: 'already_member' }, 400),
+	});
+
+	await assert.rejects(
+		client.grantMembership({ context: 'context-id', principalId: 'principal-id' }),
+		(error) =>
+			error instanceof RumborMemoryError &&
+			error.status === 400 &&
+			assert.deepEqual(error.body, { error: 'already_member' }) === undefined,
+	);
+});
+
 test('getHealth shapes GET request', async () => {
 	let request;
 	const client = new RumborMemory({
