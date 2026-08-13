@@ -1,0 +1,10 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs-dist",
+  "projectDocuments": ["docs-src/guide.md"],
+  "name": "@rumbor/memory-sdk",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeInternal": true
+}
