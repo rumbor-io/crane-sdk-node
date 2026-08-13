@@ -1,5 +1,7 @@
 # @rumbor/memory-sdk
 
+Full API reference and guide: [rumbor-io.github.io/rumbor-memory](https://rumbor-io.github.io/rumbor-memory/)
+
 Node.js/TypeScript client for Rumbor Memory API.
 
 ```ts
