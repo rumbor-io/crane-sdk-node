@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  id-token: write # required for npm trusted publishing (OIDC)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Trusted publishing requires npm CLI >=11.5.1. Node 24 LTS bundles
+      # npm 11.x natively - Node 22.14.0's bundled npm (10.9.2) is too old,
+      # and forcing `npm install -g npm@latest` afterward doesn't work
+      # either (current npm@latest requires a newer Node than 22.14.0).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm test
+      # This repo is public, so --provenance is supported (unlike the
+      # private rumbor-io/rumbor-memory, where npm rejected it with
+      # "Unsupported GitHub Actions source repository visibility: private").
+      - name: Check whether this version is already published
+        id: version_check
+        run: |
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if npm view "@rumbor/memory-sdk@$PKG_VERSION" version >/dev/null 2>&1; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "pkg_version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
+      - name: Publish to npm (trusted publishing / OIDC)
+        if: steps.version_check.outputs.already_published == 'false'
+        run: npm publish --provenance --access public
+      - name: Skip (already published)
+        if: steps.version_check.outputs.already_published == 'true'
+        run: echo "@rumbor/memory-sdk@${{ steps.version_check.outputs.pkg_version }} is already on npm - nothing to publish."
