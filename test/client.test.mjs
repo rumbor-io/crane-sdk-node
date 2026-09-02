@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { RumborMemory, RumborMemoryError } from '../dist/index.js';
+import { RumborCrane, RumborCraneError } from '../dist/index.js';
 
 function jsonResponse(body, status = 200) {
 	return new Response(JSON.stringify(body), {
@@ -12,7 +12,7 @@ function jsonResponse(body, status = 200) {
 
 test('submitTurn shapes URL, auth, and body', async () => {
 	let request;
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example/',
 		apiKey: 'principal-id',
 		fetch: async (req) => {
@@ -52,7 +52,7 @@ test('submitTurn shapes URL, auth, and body', async () => {
 
 test('recall shapes query request', async () => {
 	let request;
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example/',
 		fetch: async (req) => {
 			request = req;
@@ -70,7 +70,7 @@ test('recall shapes query request', async () => {
 
 test('getContext shapes GET request', async () => {
 	let request;
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example/',
 		fetch: async (req) => {
 			request = req;
@@ -86,7 +86,7 @@ test('getContext shapes GET request', async () => {
 
 test('recall shapes validAt and knownAt into the request body', async () => {
 	let request;
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example/',
 		fetch: async (req) => {
 			request = req;
@@ -110,7 +110,7 @@ test('recall shapes validAt and knownAt into the request body', async () => {
 
 test('getContext shapes validAt and knownAt into the query string', async () => {
 	let request;
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example/',
 		fetch: async (req) => {
 			request = req;
@@ -132,7 +132,7 @@ test('getContext shapes validAt and knownAt into the query string', async () => 
 
 test('submitTurn shapes supersedes into the assertion body', async () => {
 	let request;
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example/',
 		fetch: async (req) => {
 			request = req;
@@ -159,7 +159,7 @@ test('submitTurn shapes supersedes into the assertion body', async () => {
 
 test('grantMembership shapes URL, auth, and body', async () => {
 	let request;
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example/',
 		apiKey: 'principal-id',
 		fetch: async (req) => {
@@ -190,7 +190,7 @@ test('grantMembership shapes URL, auth, and body', async () => {
 });
 
 test('grantMembership surfaces 400 as a typed error', async () => {
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example',
 		fetch: async () => jsonResponse({ error: 'already_member' }, 400),
 	});
@@ -198,7 +198,7 @@ test('grantMembership surfaces 400 as a typed error', async () => {
 	await assert.rejects(
 		client.grantMembership({ context: 'context-id', principalId: 'principal-id' }),
 		(error) =>
-			error instanceof RumborMemoryError &&
+			error instanceof RumborCraneError &&
 			error.status === 400 &&
 			assert.deepEqual(error.body, { error: 'already_member' }) === undefined,
 	);
@@ -206,7 +206,7 @@ test('grantMembership surfaces 400 as a typed error', async () => {
 
 test('getHealth shapes GET request', async () => {
 	let request;
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example/',
 		fetch: async (req) => {
 			request = req;
@@ -222,14 +222,14 @@ test('getHealth shapes GET request', async () => {
 });
 
 test('getReadiness surfaces 503 as a typed error', async () => {
-	const client = new RumborMemory({
+	const client = new RumborCrane({
 		baseUrl: 'https://memory.example',
 		fetch: async () => jsonResponse({ status: 'not_ready' }, 503),
 	});
 
 	await assert.rejects(
 		client.getReadiness(),
-		(error) => error instanceof RumborMemoryError && error.status === 503,
+		(error) => error instanceof RumborCraneError && error.status === 503,
 	);
 });
 
@@ -238,7 +238,7 @@ for (const [status, code] of [
 	[403, 'forbidden'],
 ]) {
 	test(`${status} response throws typed error`, async () => {
-		const client = new RumborMemory({
+		const client = new RumborCrane({
 			baseUrl: 'https://memory.example',
 			fetch: async () => jsonResponse({ error: code }, status),
 		});
@@ -246,7 +246,7 @@ for (const [status, code] of [
 		await assert.rejects(
 			client.getContext({ context: 'context-id' }),
 			(error) =>
-				error instanceof RumborMemoryError &&
+				error instanceof RumborCraneError &&
 				error.status === status &&
 				assert.deepEqual(error.body, { error: code }) === undefined,
 		);

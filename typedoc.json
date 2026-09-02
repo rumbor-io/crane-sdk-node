@@ -3,7 +3,7 @@
   "entryPoints": ["src/index.ts"],
   "out": "docs-dist",
   "projectDocuments": ["docs-src/guide.md"],
-  "name": "@rumbor/memory-sdk",
+  "name": "@rumbor/crane-sdk-node",
   "readme": "none",
   "excludePrivate": true,
   "excludeInternal": true
