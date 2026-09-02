@@ -42,7 +42,20 @@ jobs:
           echo "pkg_version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
       - name: Publish to npm (trusted publishing / OIDC)
         if: steps.version_check.outputs.already_published == 'false'
-        run: npm publish --provenance --access public
+        # npm rejects a prerelease version (e.g. 0.1.3-rc.0) without an
+        # explicit --tag (it refuses to guess whether it should become
+        # "latest") - detect a prerelease by the presence of a hyphen in
+        # the version and publish it under the "next" dist-tag instead,
+        # so a scoped pre-release validation publish never becomes the
+        # default install target. Stable versions keep the default
+        # "latest" tag.
+        run: |
+          PKG_VERSION="${{ steps.version_check.outputs.pkg_version }}"
+          if [[ "$PKG_VERSION" == *-* ]]; then
+            npm publish --provenance --access public --tag next
+          else
+            npm publish --provenance --access public
+          fi
       - name: Skip (already published)
         if: steps.version_check.outputs.already_published == 'true'
         run: echo "@rumbor/memory-sdk@${{ steps.version_check.outputs.pkg_version }} is already on npm - nothing to publish."
