@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Rumbor Memory API
+  title: Rumbor Crane Engine API
   version: 0.1.0
-  description: Provider-neutral memory API for Rumbor Memory clients.
+  description: Provider-neutral CRANE engine API (memory domain and persistence) for Rumbor Crane clients.
 servers:
   - url: http://localhost:8080
 paths:

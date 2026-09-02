@@ -1,6 +1,6 @@
 # Guide
 
-`@rumbor/memory-sdk` is the Node.js/TypeScript client for the Rumbor Memory HTTP API. It is a thin, provider-neutral wrapper: it talks only to the versioned Rumbor Memory HTTP contract and does not import Honcho, SurrealDB, SurrealQL, PostgreSQL, or Redis.
+`@rumbor/memory-sdk` is the Node.js/TypeScript client for the Rumbor Crane Engine HTTP API. It is a thin, provider-neutral wrapper: it talks only to the versioned Rumbor Crane Engine HTTP contract and does not import Honcho, SurrealDB, SurrealQL, PostgreSQL, or Redis.
 
 ## Install
 
@@ -10,7 +10,7 @@ npm install @rumbor/memory-sdk
 
 ## Authentication
 
-Rumbor Memory servers authenticate requests with a single Bearer credential. The server maps each configured API key to a principal UUID via its `RUMBOR_AUTH_KEYS` configuration (a JSON object of `{"<key>": "<principal-uuid>"}` pairs) - see the server's [API key authentication reference](https://github.com/rumbor-io/rumbor-memory/blob/develop/docs/api-key-authentication.md) for the full authorization model, including how context membership works.
+Rumbor Crane Engine servers authenticate requests with a single Bearer credential. The server maps each configured API key to a principal UUID via its `RUMBOR_AUTH_KEYS` configuration (a JSON object of `{"<key>": "<principal-uuid>"}` pairs) - see the server's [API key authentication reference](https://github.com/rumbor-io/rumbor-crane-engine/blob/develop/docs/api-key-authentication.md) for the full authorization model, including how context membership works.
 
 From the client side, pass the key as `apiKey` when constructing a client:
 

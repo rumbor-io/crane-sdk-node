@@ -1,7 +1,7 @@
 {
   "name": "@rumbor/memory-sdk",
   "version": "0.1.2",
-  "description": "Provider-neutral Node.js SDK for Rumbor Memory.",
+  "description": "Provider-neutral Node.js SDK for Rumbor Crane Engine.",
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "tsc --project tsconfig.json && mkdir -p dist/generated && cp src/generated/schema.d.ts dist/generated/schema.d.ts",
-    "generate": "openapi-typescript openapi/rumbor-memory.yaml -o src/generated/schema.d.ts",
+    "generate": "openapi-typescript openapi/crane-engine.yaml -o src/generated/schema.d.ts",
     "test": "npm run build && node --test test/*.test.mjs",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "docs": "npm run build && typedoc"
