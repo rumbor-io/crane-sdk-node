@@ -34,7 +34,7 @@ jobs:
         id: version_check
         run: |
           PKG_VERSION="$(node -p "require('./package.json').version")"
-          if npm view "@rumbor/memory-sdk@$PKG_VERSION" version >/dev/null 2>&1; then
+          if npm view "@rumbor/crane-sdk-node@$PKG_VERSION" version >/dev/null 2>&1; then
             echo "already_published=true" >> "$GITHUB_OUTPUT"
           else
             echo "already_published=false" >> "$GITHUB_OUTPUT"
@@ -58,4 +58,4 @@ jobs:
           fi
       - name: Skip (already published)
         if: steps.version_check.outputs.already_published == 'true'
-        run: echo "@rumbor/memory-sdk@${{ steps.version_check.outputs.pkg_version }} is already on npm - nothing to publish."
+        run: echo "@rumbor/crane-sdk-node@${{ steps.version_check.outputs.pkg_version }} is already on npm - nothing to publish."

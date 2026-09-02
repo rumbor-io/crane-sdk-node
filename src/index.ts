@@ -2,7 +2,7 @@ import createClient, { type Client } from 'openapi-fetch';
 
 import type { components, paths } from './generated/schema.js';
 
-export interface RumborMemoryOptions {
+export interface RumborCraneOptions {
 	baseUrl: string;
 	apiKey?: string;
 	fetch?: typeof globalThis.fetch;
@@ -43,19 +43,19 @@ export type MembershipGrantRequest = components['schemas']['MembershipGrantReque
 export type MembershipGrantResponse = components['schemas']['MembershipGrantResponse'];
 export type StatusResponse = components['schemas']['StatusResponse'];
 
-export class RumborMemoryError extends Error {
+export class RumborCraneError extends Error {
 	constructor(
 		readonly status: number,
 		readonly body: unknown,
 	) {
-		super(`Rumbor Memory request failed with status ${status}`);
-		this.name = 'RumborMemoryError';
+		super(`Rumbor Crane request failed with status ${status}`);
+		this.name = 'RumborCraneError';
 	}
 }
-export class RumborMemory {
+export class RumborCrane {
 	private readonly client: Client<paths>;
 
-	constructor(options: RumborMemoryOptions) {
+	constructor(options: RumborCraneOptions) {
 		this.client = createClient<paths>({
 			baseUrl: options.baseUrl.replace(/\/$/, ''),
 			fetch: options.fetch ?? globalThis.fetch,
@@ -118,7 +118,7 @@ export class RumborMemory {
 	}
 
 	private unwrap<T>(data: T | undefined, error: unknown, response: Response): T {
-		if (!response.ok) throw new RumborMemoryError(response.status, error);
+		if (!response.ok) throw new RumborCraneError(response.status, error);
 		return data as T;
 	}
 }

@@ -1,4 +1,4 @@
-# @rumbor/memory-sdk
+# @rumbor/crane-sdk-node
 
 Node.js/TypeScript client for [Rumbor Crane Engine](https://github.com/rumbor-io) - a memory engine for agent applications.
 
@@ -6,28 +6,30 @@ Full API reference and guide: [rumbor-io.github.io/crane-sdk-node](https://rumbo
 
 This repository holds the public Node SDK's source. The Rumbor Crane Engine server (`rumbor-craned`), its domain logic, and persistence layer live in a separate private repository (`rumbor-io/rumbor-crane-engine`) - this package is only a thin, provider-neutral HTTP client for the public API contract.
 
+> Renamed from `@rumbor/memory-sdk` (ADR-032, 2026-09-02). `@rumbor/memory-sdk` is deprecated but remains installed for existing consumers; migrate by installing this package and renaming `RumborMemory`/`RumborMemoryError`/`RumborMemoryOptions` to `RumborCrane`/`RumborCraneError`/`RumborCraneOptions` - the rest of the API is unchanged.
+
 ## Install
 
 ```bash
-npm install @rumbor/memory-sdk
+npm install @rumbor/crane-sdk-node
 ```
 
 ## Quickstart
 
 ```ts
-import { RumborMemory } from '@rumbor/memory-sdk';
+import { RumborCrane } from '@rumbor/crane-sdk-node';
 
-const memory = new RumborMemory({
+const crane = new RumborCrane({
   baseUrl: 'http://localhost:8080',
   apiKey: process.env.RUMBOR_API_KEY,
 });
 
-const result = await memory.recall({
+const result = await crane.recall({
   context: 'acme-prod',
   query: 'When does the team deploy?',
 });
 
-await memory.grantMembership({
+await crane.grantMembership({
   context: 'acme-prod',
   principalId: 'a5e3a6b6-2f0a-4f3e-9c1a-8a7b6b3c9d10',
 });

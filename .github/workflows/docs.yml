@@ -1,6 +1,6 @@
 name: Docs
 
-# Publishes @rumbor/memory-sdk's public API reference + guide to GitHub
+# Publishes @rumbor/crane-sdk-node's public API reference + guide to GitHub
 # Pages.
 #
 # Path-filtered so unrelated changes don't trigger a docs rebuild.
