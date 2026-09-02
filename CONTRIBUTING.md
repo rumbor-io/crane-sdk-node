@@ -48,24 +48,29 @@ breaking changes — this repo has shipped both (`d971e19`).
 
 ## Releases
 
-Releases are cut from `develop` by tag, not by branching:
+Releases are fully automated by [release-please](https://github.com/googleapis/release-please-action),
+driven off Conventional Commit PR titles — there is no manual tagging step.
 
-1. Land the version bump in `package.json` via a normal PR into `develop`.
-2. Once merged, tag that commit on `develop`:
-   ```bash
-   git checkout develop && git pull
-   git tag vX.Y.Z
-   git push origin vX.Y.Z
-   ```
-3. Pushing a `v*.*.*` tag triggers `.github/workflows/release.yml`, which
-   builds, tests, and publishes to npm via trusted publishing (OIDC). A
-   version containing a hyphen (e.g. `v0.1.3-rc.0`) is published under the
-   `next` dist-tag instead of `latest`.
-4. The workflow is idempotent — re-running it for an already-published
-   version is a no-op.
+1. Every PR merged into `develop` is parsed for its Conventional Commit type.
+   `release-please` keeps a standing "chore: release develop" PR up to date,
+   accumulating a version bump (per [SemVer](https://semver.org/), derived
+   from `feat`/`fix`/`!`) and a generated `CHANGELOG.md` entry.
+2. When that release PR is merged (by anyone with merge rights, whenever the
+   accumulated changes are ready to ship), `release-please` tags the merge
+   commit (`vX.Y.Z`), creates a GitHub Release, and dispatches
+   `.github/workflows/release.yml` to publish to npm via trusted publishing
+   (OIDC). A version containing a hyphen is published under the `next`
+   dist-tag instead of `latest`.
+3. `release.yml` is idempotent — re-running it for an already-published
+   version is a no-op — so it can also be triggered manually
+   (`workflow_dispatch`) against any existing tag if needed.
+4. Configuration lives in `release-please-config.json` (release type, tag
+   format, changelog sections) and `.release-please-manifest.json` (current
+   version). Both are only touched by `release-please` itself; don't hand-edit
+   the manifest except to correct a bootstrap mismatch.
 
 There are no `release/*` branches and no hotfix branches: fixes land on
-`develop` via PR like everything else, then get tagged.
+`develop` via PR like everything else, then ride the next release PR.
 
 ## Local checks before opening a PR
 
