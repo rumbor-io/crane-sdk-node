@@ -30,7 +30,7 @@
   "devDependencies": {
     "openapi-typescript": "^7.13.0",
     "typedoc": "^0.28.20",
-    "typescript": "^5.8.0"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "openapi-fetch": "^0.17.0"
