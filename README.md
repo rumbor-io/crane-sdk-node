@@ -1,5 +1,9 @@
 # @rumbor/crane-sdk-node
 
+[![CI](https://github.com/rumbor-io/crane-sdk-node/actions/workflows/ci.yml/badge.svg)](https://github.com/rumbor-io/crane-sdk-node/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@rumbor/crane-sdk-node.svg)](https://www.npmjs.com/package/@rumbor/crane-sdk-node)
+[![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](./LICENSE)
+
 Node.js/TypeScript client for [Rumbor Crane Engine](https://github.com/rumbor-io) - a memory engine for agent applications.
 
 Full API reference and guide: [rumbor-io.github.io/crane-sdk-node](https://rumbor-io.github.io/crane-sdk-node/)
@@ -60,3 +64,9 @@ npm run generate
 ## License
 
 AGPL-3.0-or-later. See [LICENSE](./LICENSE).
+
+## Contributing
+
+Contributions welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the
+branching/PR/release workflow, and [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+for community expectations. Report vulnerabilities per [SECURITY.md](./SECURITY.md).

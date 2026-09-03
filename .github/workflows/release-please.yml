@@ -1,0 +1,32 @@
+name: release-please
+
+on:
+  push:
+    branches: [develop]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          target-branch: develop
+      # release-please creates the tag/GitHub Release using GITHUB_TOKEN,
+      # whose push/release events do not trigger other workflows (GitHub's
+      # anti-recursion rule: https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow).
+      # workflow_dispatch is exempt from that rule, so explicitly dispatch
+      # release.yml against the new tag instead of relying on its `on.push.tags`
+      # trigger to fire - it won't.
+      - name: Trigger npm publish workflow
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run release.yml \
+            --repo "${{ github.repository }}" \
+            --ref "${{ steps.release.outputs.tag_name }}"

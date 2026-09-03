@@ -1,0 +1,22 @@
+name: Feature request
+description: Propose a new capability or an addition to the SDK's contract coverage.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do that the SDK doesn't currently support?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: The API shape or behavior you'd expect. Note if this requires a change in the upstream OpenAPI contract (openapi/crane-engine.yaml) first.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
