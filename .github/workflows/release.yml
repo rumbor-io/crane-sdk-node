@@ -14,7 +14,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Trusted publishing requires npm CLI >=11.5.1. Node 24 LTS bundles
       # npm 11.x natively - Node 22.14.0's bundled npm (10.9.2) is too old,
       # and forcing `npm install -g npm@latest` afterward doesn't work
