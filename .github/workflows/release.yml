@@ -19,7 +19,7 @@ jobs:
       # npm 11.x natively - Node 22.14.0's bundled npm (10.9.2) is too old,
       # and forcing `npm install -g npm@latest` afterward doesn't work
       # either (current npm@latest requires a newer Node than 22.14.0).
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
